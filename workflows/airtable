@@ -1,0 +1,28 @@
+name: Airtable
+
+on:
+  schedule:
+    - cron: "0 */12 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run airtable script to fetch news
+        env:
+          AIRTABLE_NEWS_BASE_KEY: ${{ secrets.AIRTABLE_NEWS_BASE_KEY }}
+          AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
+        working-directory: scripts
+        run: |
+          pip3 install airtable-python-wrapper
+          chmod +x airtable-news-auto.py
+          ./airtable-news-auto.py
+      - name: Create Pull Request
+        uses: jcolla-holla/create-pull-request@v2
+        with:
+          commit-message: "auto-add from Airtable"
+          title: "Airtable GitHub action -- Update News"
+          body: "Updates to News from Airtable"
